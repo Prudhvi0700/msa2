@@ -1,0 +1,20 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      docker: 18
+  pre_build:
+    commands:
+    - echo Logging in to Amazon ECR...
+    - aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin 885843804602.dkr.ecr.eu-west-2.amazonaws.com
+    - mvn clean package
+    - docker build -t 922490-eureka-repo .
+    - docker tag 922490-eureka-repo:latest 885843804602.dkr.ecr.eu-west-2.amazonaws.com/922490-eureka-repo:latest
+  post_build:
+    commands:
+    - echo Build completed on 'date'
+    - echo Pushing the Docker image...
+    - docker push 885843804602.dkr.ecr.eu-west-2.amazonaws.com/922490-eureka-repo:latest
+    - printf '{"ImageURI":"885843804602.dkr.ecr.eu-west-2.amazonaws.com/922490-eureka-repo:latest"}' > imageDetail.json
+artifacts:
+  files: imageDetail.json
